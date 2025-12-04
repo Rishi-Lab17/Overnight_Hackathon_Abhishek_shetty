@@ -1,0 +1,19 @@
+Problem Statement
+Gig workers—such as delivery partners and ride-share drivers—often face unpredictable earnings, opaque algorithmic decisions, and unexplained pay variations. There is no transparent mechanism for workers to verify whether platforms like Zomato, Swiggy, or Uber have paid them fairly for a particular task
+GitHub Repository URL
+https://github.com/Rishi-Lab17/Overnight_Hackathon_Abhishek_shetty/new/main
+Key Features of Your Solution:
+1. Earnings Verification Engine
+2. Real-Time Pay Transparency Dashboard
+3. Legal Resource Center
+4. Auto-Generated Fairness Report
+5. clean & Simple Streamlit Web Portal
+Tech Stack You Are Using:
+Frontend	Streamlit, HTML, CSS
+Backend Logic	Python
+Analytics	NumPy, Pandas
+Visualization	Streamlit native charts / Plotly
+Storage (optional)	SQLite / Firebase / Google Sheets
+Deployment	Streamlit Cloud / GitHub Pages + API
+Target for the Next Checkpoint
+presentation and completion of code
