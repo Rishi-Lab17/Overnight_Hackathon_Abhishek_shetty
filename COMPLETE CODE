@@ -1,0 +1,125 @@
+COMPLETE CODE
+import streamlit as st
+import pandas as pd
+from datetime import datetime
+st.set_page_config(page_title="GigGuard Web Portal", page_icon="🌐", layout="wide")
+
+if 'reviews' not in st.session_state:
+    st.session_state.reviews = []
+st.markdown("""
+    <style>
+    .main {background-color: #f8f9fa;}
+    .stButton>button {width: 100%; border-radius: 8px; background-color: #0078D7; color: white; font-weight: bold;}
+    .metric-card {background-color: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd;}
+    .alert-box {padding: 15px; border-radius: 8px; margin-bottom: 10px;}
+    </style>
+    """, unsafe_allow_html=True)
+
+st.sidebar.title("🌐 GigGuard Portal")
+page = st.sidebar.radio("Navigate", ["Home", "Verify Earnings", "Rating & Review Audit", "Legal Resources"])
+
+if page == "Home":
+    st.title("Welcome to GigGuard 🛡️")
+    st.markdown("### The Independent Audit Platform for Gig Workers")
+    st.image("https://cdn-icons-png.flaticon.com/512/1995/1995515.png", width=120)
+    st.write("""
+    **Problem:** Gig workers face opaque algorithms, wage theft, and unexplained rating drops.
+    **Solution:** An independent 'Shadow Ledger' to verify your pay and audit your customer ratings.
+    """)
+    st.info("👈 Select a tool from the sidebar to begin.")
+elif page == "Verify Earnings":
+    st.title("💰 Earnings Verification Dashboard")
+    st.markdown("Check if the platform paid you fairly for your time and distance.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("1. Shift Details")
+        platform = st.selectbox("Select Platform", ["Swiggy/Zomato", "Uber/Ola", "Urban Company"])
+        orders = st.number_input("Total Orders/Rides", min_value=0, value=12)
+        distance = st.number_input("Total Distance (KM)", min_value=0.0, value=65.0)
+        hours = st.number_input("Login Hours", min_value=0.0, value=9.0)
+
+    with col2:
+        st.subheader("2. Payout Details")
+        actual_pay = st.number_input("Amount Received (₹)", min_value=0, value=750)
+        st.caption("Do not include tips. Only Base Pay + Incentives.")
+
+    st.divider()
+
+    if st.button("Audit My Pay"):
+        base_rate = 35 if "Swiggy" in platform else 45  # Different rates for food vs cab
+        fuel_rate = 7
+        min_wage = 60
+
+        fair_pay_perf = (orders * base_rate) + (distance * fuel_rate)
+        fair_pay_time = hours * min_wage
+        expected_pay = max(fair_pay_perf, fair_pay_time)
+
+        gap = actual_pay - expected_pay
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Platform Paid", f"₹{actual_pay}")
+        c2.metric("Fair Calculation", f"₹{int(expected_pay)}")
+        c3.metric("Discrepancy", f"₹{int(gap)}", delta_color="normal")
+
+        if gap < -50:
+            st.error(f"🚨 WAGE THEFT ALERT: You were underpaid by ₹{abs(int(gap))}.")
+        else:
+            st.success("✅ Payment is fair according to standard benchmarks.")
+elif page == "Rating & Review Audit":
+    st.title("⭐ Rating & Review Audit")
+    st.markdown("Log customer interactions to detect **Unjustified Rating Drops**.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("📝 Log New Interaction")
+        order_id = st.text_input("Order / Ride ID")
+        customer_behavior = st.selectbox("Customer Behavior",
+                                         ["Polite & On Time", "Rude / Abusive", "Made me Wait", "Wrong Location"])
+
+        st.markdown("---")
+        worker_rating = st.slider("Rating YOU gave Customer", 1, 5, 5)
+        customer_rating = st.slider("Rating Customer gave YOU", 1, 5, 5)
+
+        comments = st.text_area("Incident Details (Optional)")
+
+        if st.button("Log Review"):
+
+            status = "Normal"
+            flag = False
+
+            if customer_rating <= 3 and worker_rating == 5:
+                status = "⚠️ Unjustified Rating Drop"
+                flag = True
+            elif customer_behavior == "Rude / Abusive":
+                status = "🚩 Harassment Incident"
+                flag = True
+
+
+            new_entry = {
+                "ID": order_id,
+                "Time": datetime.now().strftime("%H:%M"),
+                "Cust. Rating": customer_rating,
+                "My Rating": worker_rating,
+                "Status": status,
+                "Details": comments
+            }
+            st.session_state.reviews.append(new_entry)
+
+            if flag:
+                st.error(f"Alert: {status} detected. This has been logged for evidence.")
+            else:
+                st.success("Interaction logged successfully.")
+    with col2:
+        st.subheader("📋 Audit History")
+        if len(st.session_state.reviews) > 0:
+            df = pd.DataFrame(st.session_state.reviews)
+            st.dataframe(df)
+            st.download_button("Download Evidence Log (CSV)", df.to_csv(), "evidence.csv")
+        else:
+            st.info("No logs yet. Enter details on the left to track rating anomalies.")
+elif page == "Legal Resources":
+    st.title("⚖️ Legal Support")
+    st.write("Generate automated grievance reports for labor unions.")
+
+    dispute_type = st.selectbox("Select Issue", ["Unfair Deactivation", "Wage Theft", "Harassment"])
+    st.button("Generate PDF Report")
